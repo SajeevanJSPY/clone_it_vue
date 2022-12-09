@@ -10,5 +10,12 @@
   "homepage": "https://github.com/SajeevanJSPY/clone_it_vue#readme",
   "devDependencies": {
     "prettier": "2.8.1"
+  },
+  "scripts": {
+    "format": "prettier --write --parser typescript \"packages/**/*.ts?(x)\""
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
   }
 }
