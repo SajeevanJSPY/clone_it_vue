@@ -24,3 +24,12 @@ exports[`compiler: codeframe linear near top 1`] = `
 3  |     <ul>
 4  |         <li v-for="footbar">hi</li>"
 `;
+
+exports[`compiler: codeframe multi-line highlights 1`] = `
+"1  | <div attr="some 
+  |        ^^^^^^^^^^^
+2  |   multiline
+  |   ^^^^^^^^^^^
+3  | attr">
+  |   ^^^^^"
+`;

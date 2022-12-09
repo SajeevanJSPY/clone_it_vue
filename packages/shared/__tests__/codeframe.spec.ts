@@ -16,15 +16,30 @@ describe('compiler: codeframe', () => {
     const keyEnd = keyStart + `key="one"`.length
     expect(generateCodeFrame(source, keyStart, keyEnd)).toMatchSnapshot()
   })
+
   test('line in middle', () => {
     // should cover 5 lines
     const forStart = source.indexOf(`v-for=`)
     const forEnd = forStart + `v-for="foobar"`.length
     expect(generateCodeFrame(source, forStart, forEnd)).toMatchSnapshot()
   })
+
   test('line near bottom', () => {
     const keyStart = source.indexOf(`key="two"`)
     const keyEnd = keyStart + `key="two"`.length
     expect(generateCodeFrame(source, keyStart, keyEnd)).toMatchSnapshot()
+  })
+
+  test('multi-line highlights', () => {
+    const source = `
+<div attr="some 
+  multiline
+attr">
+</div>
+    `.trim()
+
+    const attrStart = source.indexOf(`attr=`)
+    const attrEnd = source.indexOf(`">`) + 1
+    expect(generateCodeFrame(source, attrStart, attrEnd)).toMatchSnapshot()
   })
 })
