@@ -9,6 +9,14 @@ exports[`compiler: codeframe line in middle 1`] = `
 6  |     <template key="two"></template>"
 `;
 
+exports[`compiler: codeframe line near bottom 1`] = `
+"4  |         <li v-for="footbar">hi</li>
+5  |     </ul>
+6  |     <template key="two"></template>
+  |                 ^^^^^^^^^
+7  | </div>"
+`;
+
 exports[`compiler: codeframe linear near top 1`] = `
 "1  | <div>
 2  |     <template key="one"></template>

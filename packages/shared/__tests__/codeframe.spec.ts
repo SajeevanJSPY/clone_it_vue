@@ -22,4 +22,9 @@ describe('compiler: codeframe', () => {
     const forEnd = forStart + `v-for="foobar"`.length
     expect(generateCodeFrame(source, forStart, forEnd)).toMatchSnapshot()
   })
+  test('line near bottom', () => {
+    const keyStart = source.indexOf(`key="two"`)
+    const keyEnd = keyStart + `key="two"`.length
+    expect(generateCodeFrame(source, keyStart, keyEnd)).toMatchSnapshot()
+  })
 })
