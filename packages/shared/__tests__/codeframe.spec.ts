@@ -16,4 +16,10 @@ describe('compiler: codeframe', () => {
     const keyEnd = keyStart + `key="one"`.length
     expect(generateCodeFrame(source, keyStart, keyEnd)).toMatchSnapshot()
   })
+  test('line in middle', () => {
+    // should cover 5 lines
+    const forStart = source.indexOf(`v-for=`)
+    const forEnd = forStart + `v-for="foobar"`.length
+    expect(generateCodeFrame(source, forStart, forEnd)).toMatchSnapshot()
+  })
 })
