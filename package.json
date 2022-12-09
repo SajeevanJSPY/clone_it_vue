@@ -1,0 +1,11 @@
+{
+  "name": "clone_it_vue",
+  "version": "3.0.0",
+  "description": "Re-creating vueJS",
+  "author": "Sajeevan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SajeevanJSPY/clone_it_vue/issues"
+  },
+  "homepage": "https://github.com/SajeevanJSPY/clone_it_vue#readme"
+}
