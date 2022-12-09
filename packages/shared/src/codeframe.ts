@@ -1,4 +1,4 @@
-const range: number = 2
+const range = 2
 
 export function generateCodeFrame(
   source: string,

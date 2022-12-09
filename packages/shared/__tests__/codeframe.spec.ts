@@ -1,7 +1,7 @@
-import { generateCodeFrame } from "../src/codeframe";
+import { generateCodeFrame } from '../src/codeframe'
 
 describe('compiler: codeframe', () => {
-    const source = `
+  const source = `
 <div>
     <template key="one"></template>
     <ul>
@@ -11,10 +11,9 @@ describe('compiler: codeframe', () => {
 </div>
     `.trim()
 
-    test('linear near top', () => {
-        const keyStart = source.indexOf(`key="one"`)
-        const keyEnd = keyStart + `key="one"`.length
-        expect(generateCodeFrame(source, keyStart, keyEnd)).toMatchSnapshot()
-    })
-
+  test('linear near top', () => {
+    const keyStart = source.indexOf(`key="one"`)
+    const keyEnd = keyStart + `key="one"`.length
+    expect(generateCodeFrame(source, keyStart, keyEnd)).toMatchSnapshot()
+  })
 })
