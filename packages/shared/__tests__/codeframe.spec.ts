@@ -11,4 +11,10 @@ describe('compiler: codeframe', () => {
 </div>
     `.trim()
 
+    test('linear near top', () => {
+        const keyStart = source.indexOf(`key="one"`)
+        const keyEnd = keyStart + `key="one"`.length
+        expect(generateCodeFrame(source, keyStart, keyEnd)).toMatchSnapshot()
+    })
+
 })
