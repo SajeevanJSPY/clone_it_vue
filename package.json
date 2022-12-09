@@ -1,6 +1,28 @@
 {
   "name": "clone_it_vue",
   "version": "3.0.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "format": "prettier --write --parser typescript \"packages/**/*.ts?(x)\""
+  },
+  "types": "test-dts/index.d.ts",
+  "tsd": {
+    "directory": "test-dts"
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write"
+    ],
+    "*.ts?(x)": [
+      "eslint",
+      "prettier --parser=typescript --write"
+    ]
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "description": "Re-creating vueJS",
   "author": "Sajeevan",
   "license": "MIT",
@@ -12,9 +34,6 @@
     "eslint": "^8.29.0",
     "jest": "^29.3.1",
     "prettier": "2.8.1"
-  },
-  "scripts": {
-    "format": "prettier --write --parser typescript \"packages/**/*.ts?(x)\""
   },
   "prettier": {
     "semi": false,
