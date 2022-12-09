@@ -9,7 +9,8 @@
   },
   "homepage": "https://github.com/SajeevanJSPY/clone_it_vue#readme",
   "devDependencies": {
-    "prettier": "2.8.1"
+    "prettier": "2.8.1",
+    "eslint": "^8.29.0"
   },
   "scripts": {
     "format": "prettier --write --parser typescript \"packages/**/*.ts?(x)\""
