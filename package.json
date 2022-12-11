@@ -46,5 +46,8 @@
   "prettier": {
     "semi": false,
     "singleQuote": true
+  },
+  "dependencies": {
+    "jest-environment-jsdom": "^29.3.1"
   }
 }
