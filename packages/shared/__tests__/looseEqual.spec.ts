@@ -188,4 +188,15 @@ describe('utils/looseEqual', () => {
     // Special case where an object's keys are the same as keys (indexes) of an array
     expect(looseEqual(obj3, arr3)).toBe(false)
   })
+
+  test('compare null and undefined values correctly', () => {
+    expect(looseEqual(null, null)).toBe(true)
+    expect(looseEqual(undefined, undefined)).toBe(true)
+    expect(looseEqual(void 0, undefined)).toBe(true)
+    expect(looseEqual(null, undefined)).toBe(false)
+    expect(looseEqual(null, void 0)).toBe(false)
+    expect(looseEqual(null, '')).toBe(false)
+    expect(looseEqual(null, false)).toBe(false)
+    expect(looseEqual(undefined, false)).toBe(false)
+  })
 })
