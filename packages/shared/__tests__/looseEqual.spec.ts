@@ -92,4 +92,25 @@ describe('utils/looseEqual', () => {
     // Two file with same name, modified date, but different content
     expect(looseEqual(file5, file6)).toBe(false)
   })
+
+  test('compares arrays correctly', () => {
+    const arr1 = [1, 2, 3, 4]
+    const arr2 = [1, 2, 3, '4']
+    const arr3 = [1, 2, 3, 4, 5]
+    const arr4 = [1, 2, 3, 4, { a: 5 }]
+
+    // Identical array  references
+    expect(looseEqual(arr1, arr2)).toBe(true)
+    // Different array reference with identical values
+    expect(looseEqual(arr1, arr2.slice())).toBe(true)
+    expect(looseEqual(arr4, arr4.slice())).toBe(true)
+    // Array with one value different (loose)
+    expect(looseEqual(arr1, arr2)).toBe(true)
+    // Array with different value different
+    expect(looseEqual(arr3, arr4)).toBe(false)
+    // Array with different lengths
+    expect(looseEqual(arr1, arr3)).toBe(false)
+    // Arrays with different order
+    expect(looseEqual(arr1, arr1.slice().reverse())).toBe(false)
+  })
 })
