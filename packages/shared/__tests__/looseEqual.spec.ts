@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { looseEqual } from '../src/looseEqual'
 
 describe('utils/looseEqual', () => {
@@ -47,5 +51,45 @@ describe('utils/looseEqual', () => {
     expect(looseEqual(date1, date3)).toBe(false)
     // Dates with different years
     expect(looseEqual(date1, date4)).toBe(false)
+  })
+
+  test('compares files correctly', () => {
+    const date1 = new Date(2019, 1, 2, 3, 4, 5, 6)
+    const date2 = new Date(2019, 1, 2, 3, 4, 5, 7)
+    const file1 = new File([''], 'filename.txt', {
+      type: 'text/plain',
+      lastModified: date1.getTime(),
+    })
+    const file2 = new File([''], 'filename.txt', {
+      type: 'text/plain',
+      lastModified: date1.getTime(),
+    })
+    const file3 = new File([''], 'filename.txt', {
+      type: 'text/plain',
+      lastModified: date2.getTime(),
+    })
+    const file4 = new File([''], 'filename.csv', {
+      type: 'text/csv',
+      lastModified: date1.getTime(),
+    })
+    const file5 = new File(['abcdef'], 'filename.txt', {
+      type: 'text/plain',
+      lastModified: date1.getTime(),
+    })
+    const file6 = new File(['12345'], 'filename.txt', {
+      type: 'text/plain',
+      lastModified: date1.getTime(),
+    })
+
+    // Identical file object references
+    expect(looseEqual(file1, file1)).toBe(true)
+    // Different file references with identical values
+    expect(looseEqual(file1, file2)).toBe(true)
+    // Files with slightly different dates
+    expect(looseEqual(file1, file3)).toBe(false)
+    // Two different file types
+    expect(looseEqual(file1, file4)).toBe(false)
+    // Two file with same name, modified date, but different content
+    expect(looseEqual(file5, file6)).toBe(false)
   })
 })
