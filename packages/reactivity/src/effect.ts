@@ -40,3 +40,74 @@ export interface DebuggerEventExtraInfo {
   oldValue?: any
   oldTarget?: Map<any, any> | Set<any>
 }
+
+const effectStack: ReactiveEffect[] = []
+let activeEffect: ReactiveEffect | undefined
+
+export const ITERATE_KEY = Symbol(__DEV__ ? 'iterate' : '')
+export const MAP_KEY_ITERATE_KEY = Symbol(__DEV__ ? 'Map key iterate' : '')
+
+export function isEffect(fn: any): fn is ReactiveEffect {
+  return fn && fn._isEffect === true
+}
+
+let uid = 0
+
+function createReactiveEffect<T = any>(
+  fn: () => T,
+  options: ReactiveEffectOptions
+): ReactiveEffect<T> {
+  const effect = function reactiveEffect(): unknown {
+    if (!effect.active) {
+      return options.schedular ? undefined : fn()
+    }
+    if (!effectStack.includes(effect)) {
+      cleanup(effect)
+      try {
+        enableTracking()
+        effectStack.push(effect)
+        activeEffect = effect
+        return fn()
+      } finally {
+        effectStack.pop()
+        resetTracking()
+        activeEffect = effectStack[effectStack.length - 1]
+      }
+    }
+  } as ReactiveEffect
+  effect.id = uid++
+  effect._isEffect = true
+  effect.active = true
+  effect.raw = fn
+  effect.deps = []
+  effect.options = options
+  return effect
+}
+
+function cleanup(effect: ReactiveEffect) {
+  const { deps } = effect
+  if (deps.length) {
+  }
+  for (let i = 0; i < deps.length; i++) {
+    deps[i].delete(effect)
+  }
+  deps.length = 0
+}
+
+let shouldTrack = true
+const trackStack: boolean[] = []
+
+export function pauseTracking() {
+  trackStack.push(shouldTrack)
+  shouldTrack = false
+}
+
+export function enableTracking() {
+  trackStack.push(shouldTrack)
+  shouldTrack = true
+}
+
+export function resetTracking() {
+  const last = trackStack.pop()
+  shouldTrack = last === undefined ? true : last
+}
