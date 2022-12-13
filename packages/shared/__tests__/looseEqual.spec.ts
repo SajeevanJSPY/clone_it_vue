@@ -19,4 +19,17 @@ describe('utils/looseEqual', () => {
     expect(looseEqual(String(number), number)).toBe(true)
     expect(looseEqual(String(bool), bool)).toBe(true)
   })
+
+  test('compares numbers correctly', () => {
+    const integer = 100
+    const decimal = 2.5
+    const multiplier = 1.0000001
+
+    expect(looseEqual(integer, integer)).toBe(true)
+    expect(looseEqual(integer, integer - 1)).toBe(false)
+    expect(looseEqual(decimal, decimal)).toBe(true)
+    expect(looseEqual(decimal, decimal * multiplier)).toBe(false)
+    expect(looseEqual(integer, integer * decimal)).toBe(false)
+    expect(looseEqual(multiplier, multiplier)).toBe(true)
+  })
 })
