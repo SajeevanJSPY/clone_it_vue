@@ -10,7 +10,7 @@ function looseCompareArrays(a: any[], b: any[]) {
 }
 
 export function looseEqual(a: any, b: any): boolean {
-  if (a == b) return true
+  if (a === b) return true
   let aValidType = isDate(a)
   let bValidType = isDate(b)
   if (aValidType || bValidType) {
@@ -30,8 +30,8 @@ export function looseEqual(a: any, b: any): boolean {
     const bKeyCount = Object.keys(b).length
     if (aKeyCount !== bKeyCount) return false
     for (const key in a) {
-      const aHasKey = Object.hasOwn(a, key)
-      const bHasKey = Object.hasOwn(b, key)
+      const aHasKey = a.hasOwnProperty(key)
+      const bHasKey = b.hasOwnProperty(key)
 
       if (
         (aHasKey && !bHasKey) ||
