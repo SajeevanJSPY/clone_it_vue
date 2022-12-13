@@ -1,0 +1,32 @@
+{
+  "name": "@vue/reactivity",
+  "version": "3.0.0",
+  "description": "@vue/reactivity",
+  "main": "index.js",
+  "module": "dist/reactivity.esm-bundler.js",
+  "types": "dist/reactivity.d.ts",
+  "unpkg": "dist/reactivity.global.js",
+  "jsdelive": "dist/reactivity.global.js",
+  "files": [
+    "index.js",
+    "dist"
+  ],
+  "sideEffects": false,
+  "buildOptions": {
+    "name": "VueReactivity",
+    "formats": [
+      "esm-builder",
+      "esm-browser",
+      "cjs",
+      "global"
+    ]
+  },
+  "keywords": [
+    "clone_it_vue"
+  ],
+  "author": "Sajeevan",
+  "license": "MIT",
+  "dependencies": {
+    "@vue/shared": "3.0.0"
+  }
+}
