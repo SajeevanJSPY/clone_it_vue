@@ -113,4 +113,20 @@ describe('utils/looseEqual', () => {
     // Arrays with different order
     expect(looseEqual(arr1, arr1.slice().reverse())).toBe(false)
   })
+
+  test('compares RegExp correctly', () => {
+    const rx1 = /^foo$/
+    const rx2 = /^foo$/
+    const rx3 = /^bar$/
+    const rx4 = /^bar$/i
+
+    // Identical regex references
+    expect(looseEqual(rx1, rx1)).toBe(true)
+    // Different regex references with identical values
+    expect(looseEqual(rx1, rx2)).toBe(true)
+    // Different regex
+    expect(looseEqual(rx1, rx3)).toBe(false)
+    // Same regex with different options
+    expect(looseEqual(rx3, rx4)).toBe(false)
+  })
 })
