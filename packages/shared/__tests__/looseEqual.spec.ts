@@ -129,4 +129,31 @@ describe('utils/looseEqual', () => {
     // Same regex with different options
     expect(looseEqual(rx3, rx4)).toBe(false)
   })
+
+  test('compare objects correctly', () => {
+    const obj1 = { foo: 'bar' }
+    const obj2 = { foo: 'bar1' }
+    const obj3 = { a: 1, b: 2, c: 3 }
+    const obj4 = { b: 2, c: 3, a: 1 }
+    const obj5 = { ...obj4, z: 999 }
+    const nestedObj1 = { ...obj1, bar: [{ ...obj1 }, { ...obj1 }] }
+    const nestedObj2 = { ...obj1, bar: [{ ...obj1 }, { ...obj2 }] }
+
+    // Identical object references
+    expect(looseEqual(obj1, obj1)).toBe(true)
+    // Two objects with identical keys/values
+    expect(looseEqual(obj1, { ...obj1 })).toBe(true)
+    // Different key values
+    expect(looseEqual(obj1, obj2)).toBe(false)
+    // Keys in different orders
+    expect(looseEqual(obj3, obj4)).toBe(true)
+    // One object has additional key
+    expect(looseEqual(obj4, obj5)).toBe(false)
+    // Identical object references with nested array
+    expect(looseEqual(nestedObj1, nestedObj1)).toBe(true)
+    // Identical object definitions with nested array
+    expect(looseEqual(nestedObj1, { ...nestedObj1 })).toBe(true)
+    // Object definitions with nested array (which has different order)
+    expect(looseEqual(nestedObj1, nestedObj2)).toBe(false)
+  })
 })
