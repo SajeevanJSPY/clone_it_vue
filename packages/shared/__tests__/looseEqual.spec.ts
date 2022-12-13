@@ -156,4 +156,36 @@ describe('utils/looseEqual', () => {
     // Object definitions with nested array (which has different order)
     expect(looseEqual(nestedObj1, nestedObj2)).toBe(false)
   })
+
+  test('compare different types correctly', () => {
+    const obj1 = {}
+    const obj2 = { a: 1 }
+    const obj3 = { 0: 0, 1: 1, 2: 2 }
+    const arr1: any[] = []
+    const arr2 = [1]
+    const arr3 = [0, 1, 2]
+    const date1 = new Date(2019, 1, 2, 3, 4, 5, 6)
+    const file1 = new File([''], 'filename.txt', {
+      type: 'text/plain',
+      lastModified: date1.getTime(),
+    })
+
+    expect(looseEqual(123, '123')).toBe(true)
+    expect(looseEqual(123, new Date(123))).toBe(false)
+    expect(looseEqual(`123`, new Date(123))).toBe(false)
+    expect(looseEqual([1, 2, 3], '1,2,3')).toBe(false)
+    expect(looseEqual(obj1, arr1)).toBe(false)
+    expect(looseEqual(obj2, arr2)).toBe(false)
+    expect(looseEqual(obj1, '[object Object]')).toBe(false)
+    expect(looseEqual(arr1, '[object Array]')).toBe(false)
+    expect(looseEqual(obj1, date1)).toBe(false)
+    expect(looseEqual(obj2, date1)).toBe(false)
+    expect(looseEqual(arr1, date1)).toBe(false)
+    expect(looseEqual(arr2, date1)).toBe(false)
+    expect(looseEqual(obj2, file1)).toBe(false)
+    expect(looseEqual(arr2, file1)).toBe(false)
+    expect(looseEqual(date1, file1)).toBe(false)
+    // Special case where an object's keys are the same as keys (indexes) of an array
+    expect(looseEqual(obj3, arr3)).toBe(false)
+  })
 })
