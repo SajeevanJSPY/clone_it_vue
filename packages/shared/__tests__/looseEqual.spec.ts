@@ -32,4 +32,20 @@ describe('utils/looseEqual', () => {
     expect(looseEqual(integer, integer * decimal)).toBe(false)
     expect(looseEqual(multiplier, multiplier)).toBe(true)
   })
+
+  test('compares dates correctly', () => {
+    const date1 = new Date(2019, 1, 2, 3, 4, 5, 6)
+    const date2 = new Date(2019, 1, 2, 3, 4, 5, 6)
+    const date3 = new Date(2019, 1, 2, 3, 4, 5, 7)
+    const date4 = new Date(2219, 1, 2, 3, 4, 5, 6)
+
+    // Identical date object references
+    expect(looseEqual(date1, date1)).toBe(true)
+    // Different date references with identical values
+    expect(looseEqual(date1, date2)).toBe(true)
+    // Dates with slightly different time (ms)
+    expect(looseEqual(date1, date3)).toBe(false)
+    // Dates with different years
+    expect(looseEqual(date1, date4)).toBe(false)
+  })
 })
