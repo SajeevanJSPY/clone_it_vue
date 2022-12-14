@@ -1,4 +1,4 @@
-import { isObject, toRawType } from '@vue/shared'
+import { def, isObject, toRawType } from '@vue/shared'
 import { Ref, UnwrapRef } from './ref'
 
 export const enum ReactiveFlags {
@@ -115,4 +115,30 @@ function createReactiveObject(
   )
   proxyMap.set(target, proxy)
   return proxy
+}
+
+export function isReactive(value: unknown): boolean {
+  if (isReadonly(value)) {
+    return isReactive((value as Target)[ReactiveFlags.RAW])
+  }
+  return !!(value && (value as Target)[ReactiveFlags.IS_REACTIVE])
+}
+
+export function isReadonly(value: unknown): boolean {
+  return !!(value && (value as Target)[ReactiveFlags.IS_READONLY])
+}
+
+export function toProxy(value: unknown): boolean {
+  return isReactive(value) || isReadonly(value)
+}
+
+export function toRaw<T>(observed: T): T {
+  return (
+    (observed && toRaw((observed as Target)[ReactiveFlags.RAW])) || observed
+  )
+}
+
+export function markRaw<T extends object>(value: T): T {
+  def(value, ReactiveFlags.SKIP, true)
+  return value
 }
