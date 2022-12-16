@@ -31,7 +31,7 @@ module.exports = {
     moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],
     rootDir: __dirname,
     // testMatch: ['<rootDir>/packages/**/__tests__/**/*spec.[jt]s?(x)'],
-    testMatch: ['<rootDir>/packages/shared/__tests__/looseEqual.spec.ts'],
+    testMatch: ['<rootDir>/packages/reactivity/__tests__/ref.spec.ts'],
     testPathIgnorePatterns: process.env.SKIP_E2E
         ? // ignore example tests on netlify builds since they don't contribute
         // to coverage and can cause netlify builds to fail
