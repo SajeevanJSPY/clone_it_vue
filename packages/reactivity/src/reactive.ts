@@ -1,4 +1,15 @@
 import { def, isObject, toRawType } from '@vue/shared'
+import {
+  mutableHandlers,
+  readonlyHandlers,
+  shallowReactiveHandlers,
+  shallowReadonlyHandlers,
+} from './baseHandlers'
+import {
+  mutableCollectionHandlers,
+  readonlyCollectionHandlers,
+  shallowCollectionHandlers,
+} from './collectionHandlers'
 import { Ref, UnwrapRef } from './ref'
 
 export const enum ReactiveFlags {
@@ -54,6 +65,24 @@ export function reactive(target: object) {
   if (target && (target as Target)[ReactiveFlags.IS_READONLY]) {
     return target
   }
+  return createReactiveObject(
+    target,
+    false,
+    mutableHandlers,
+    mutableCollectionHandlers
+  )
+}
+
+// Return a reactive-copy of the original object, where only the root level
+// properties are reactive, and does NOT unwrap refs nor recursively convert
+// returned properties.
+export function shallowReactive<T extends object>(target: T): T {
+  return createReactiveObject(
+    target,
+    false,
+    shallowReactiveHandlers,
+    shallowCollectionHandlers
+  )
 }
 
 type Primitive = string | number | boolean | bigint | symbol | undefined | null
@@ -77,6 +106,32 @@ export type DeepReadonly<T> = T extends Builtin
   : T extends {}
   ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
   : Readonly<T>
+
+export function readonly<T extends object>(
+  target: T
+): DeepReadonly<UnwrapNestedRefs<T>> {
+  return createReactiveObject(
+    target,
+    true,
+    readonlyHandlers,
+    readonlyCollectionHandlers
+  )
+}
+
+// Return a reactive-copy of the original object, where only the root level
+// properties are readonly, and does NOT unwrap refs nor recursively convert
+// returned properties.
+// This is used for creating the props proxy object for stateful components.
+export function shallowReadonly<T extends object>(
+  target: T
+): Readonly<{ [K in keyof T]: UnwrapNestedRefs<T[K]> }> {
+  return createReactiveObject(
+    target,
+    true,
+    shallowReadonlyHandlers,
+    readonlyCollectionHandlers
+  )
+}
 
 function createReactiveObject(
   target: Target,
@@ -128,7 +183,7 @@ export function isReadonly(value: unknown): boolean {
   return !!(value && (value as Target)[ReactiveFlags.IS_READONLY])
 }
 
-export function toProxy(value: unknown): boolean {
+export function isProxy(value: unknown): boolean {
   return isReactive(value) || isReadonly(value)
 }
 
