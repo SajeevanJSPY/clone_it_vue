@@ -7,10 +7,10 @@ or "esm,cjs"):
 
 ```
 # name supports fuzzy match. will build all packages with name containing "dom":
-yarn build dom
+nr build dom
 
 # specify the format to output
-yarn build core --formats cjs
+nr build core --formats cjs
 ```
 */
 
@@ -27,11 +27,11 @@ const targets = args._
 const formats = args.formats || args.f
 const devOnly = args.devOnly || args.d
 const prodOnly = !devOnly && (args.prodOnly || args.p)
-const sourceMap = args.sourceMap || args.s
+const sourceMap = args.sourcemap || args.s
 const isRelease = args.release
 const buildTypes = args.t || args.types || isRelease
 const buildAllMatching = args.all || args.a
-const commit = execa.execaSync('git', ['rev-parse', 'HEAD']).stdout.slice(0, 7)
+const commit = execa.sync('git', ['rev-parse', 'HEAD']).stdout.slice(0, 7)
 
 run()
 
@@ -50,21 +50,37 @@ async function run() {
 }
 
 async function buildAll(targets) {
-    for (const target of targets) {
-        await build(target)
+    await runParallel(require('os').cpus().length, targets, build)
+}
+
+async function runParallel(maxConcurrency, source, iteratorFn) {
+    const ret = []
+    const executing = []
+    for (const item of source) {
+        const p = Promise.resolve().then(() => iteratorFn(item, source))
+        ret.push(p)
+
+        if (maxConcurrency <= source.length) {
+            const e = p.then(() => executing.splice(executing.indexOf(e), 1))
+            executing.push(e)
+            if (executing.length >= maxConcurrency) {
+                await Promise.race(executing)
+            }
+        }
     }
+    return Promise.all(ret)
 }
 
 async function build(target) {
     const pkgDir = path.resolve(`packages/${target}`)
     const pkg = require(`${pkgDir}/package.json`)
 
-    // only build published packages for release
-    if (isRelease && pkg.private) {
+    // if this is a full build (no specific targets), ignore private packages
+    if ((isRelease || !targets.length) && pkg.private) {
         return
     }
 
-    // if building a specific format, do not remove dist
+    // if building a specific format, do not remove dist.
     if (!formats) {
         await fs.remove(`${pkgDir}/dist`)
     }
@@ -81,7 +97,7 @@ async function build(target) {
                 `COMMIT:${commit}`,
                 `NODE_ENV:${env}`,
                 `TARGET:${target}`,
-                formats ? `FORMATS:${formats}` : '',
+                formats ? `FORMATS:${formats}` : ``,
                 buildTypes ? `TYPES:true` : ``,
                 prodOnly ? `PROD_ONLY:true` : ``,
                 sourceMap ? `SOURCE_MAP:true` : ``
@@ -102,23 +118,23 @@ async function build(target) {
         const { Extractor, ExtractorConfig } = require('@microsoft/api-extractor')
 
         const extractorConfigPath = path.resolve(pkgDir, `api-extractor.json`)
-        const extractorConfig = ExtractorConfig.loadFileAndPrepare(
-            extractorConfigPath
-        )
+        const extractorConfig =
+            ExtractorConfig.loadFileAndPrepare(extractorConfigPath)
         const extractorResult = Extractor.invoke(extractorConfig, {
             localBuild: true,
             showVerboseMessages: true
         })
+
         if (extractorResult.succeeded) {
             // concat additional d.ts to rolled-up dts
             const typesDir = path.resolve(pkgDir, 'types')
-            if (await fs.exists(typeDir)) {
+            if (await fs.exists(typesDir)) {
                 const dtsPath = path.resolve(pkgDir, pkg.types)
                 const existing = await fs.readFile(dtsPath, 'utf-8')
                 const typeFiles = await fs.readdir(typesDir)
                 const toAdd = await Promise.all(
                     typeFiles.map(file => {
-                        return fs.writeFile(path.resolve(typesDir, file), 'utf-8')
+                        return fs.readFile(path.resolve(typesDir, file), 'utf-8')
                     })
                 )
                 await fs.writeFile(dtsPath, existing + '\n' + toAdd.join('\n'))
@@ -139,7 +155,7 @@ async function build(target) {
 }
 
 function checkAllSizes(targets) {
-    if (devOnly) {
+    if (devOnly || (formats && !formats.includes('global'))) {
         return
     }
     console.log()
@@ -152,6 +168,9 @@ function checkAllSizes(targets) {
 function checkSize(target) {
     const pkgDir = path.resolve(`packages/${target}`)
     checkFileSize(`${pkgDir}/dist/${target}.global.prod.js`)
+    if (!formats || formats.includes('global-runtime')) {
+        checkFileSize(`${pkgDir}/dist/${target}.runtime.global.prod.js`)
+    }
 }
 
 function checkFileSize(filePath) {
