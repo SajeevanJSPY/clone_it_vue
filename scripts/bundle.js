@@ -18,7 +18,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const chalk = require('chalk')
 const execa = require('execa')
-const { gzip } = require('zlib')
+const { gzipSync } = require('zlib')
 const { compress } = require('brotli')
 const { targets: allTargets, fuzzyMatchTarget } = require('./utils')
 
