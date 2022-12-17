@@ -5,7 +5,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "node scrips/build.js",
+    "build": "node scripts/build.js",
+    "dev": "node scripts/dev.js",
     "format": "prettier --write --parser typescript \"packages/**/*.ts?(x)\"",
     "lint": "eslint --ext .ts packages/*/src/**",
     "test": "jest"
