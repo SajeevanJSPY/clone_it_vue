@@ -27,6 +27,6 @@
   "author": "Sajeevan",
   "license": "MIT",
   "dependencies": {
-    "@vue/shared": "3.0.0"
+    "@vue/shared": "^3.2.45"
   }
 }

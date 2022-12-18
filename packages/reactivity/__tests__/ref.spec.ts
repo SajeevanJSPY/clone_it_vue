@@ -1,5 +1,4 @@
-import { ref } from '../src/index'
-import '@vue/shared'
+import { ref } from '../src/ref'
 
 describe('reactivity/ref', () => {
   test('should hold a value', () => {

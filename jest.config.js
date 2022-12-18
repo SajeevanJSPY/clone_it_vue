@@ -1,4 +1,5 @@
 module.exports = {
+    testEnvironment: 'jsdom',
     preset: "ts-jest",
     globals: {
         __DEV__: true,
@@ -36,5 +37,5 @@ module.exports = {
         ? // ignore example tests on netlify builds since they don't contribute
         // to coverage and can cause netlify builds to fail
         ['/node_modules/', '/examples/__tests__']
-        : ['/node_modules/']
+        : ['/node_modules/'],
 }
