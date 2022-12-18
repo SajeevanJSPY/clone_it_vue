@@ -66,9 +66,9 @@ importers:
 
   packages/reactivity:
     specifiers:
-      '@vue/shared': 3.0.0
+      '@vue/shared': ^3.2.45
     dependencies:
-      '@vue/shared': link:../shared
+      '@vue/shared': 3.2.45
 
   packages/shared:
     specifiers: {}
@@ -1286,6 +1286,10 @@ packages:
     resolution: {integrity: sha512-nl0SWcTMzaaTnJ5G6V8VlMDA1CVVrNnaQKF1aBZU3kXtjgU9jtHMsEAsgjoRUx+T0EVJk9TgbmxGhK3pOk22zw==}
     engines: {node: '>= 0.12.0'}
     dev: true
+
+  /@vue/shared/3.2.45:
+    resolution: {integrity: sha512-Ewzq5Yhimg7pSztDV+RH1UDKBzmtqieXQlpTVm2AwraoRL/Rks96mvd8Vgi7Lj+h+TH8dv7mXD3FRZR3TUvbSg==}
+    dev: false
 
   /abab/2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
