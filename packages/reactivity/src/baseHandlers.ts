@@ -176,7 +176,7 @@ function has(target: object, key: string | symbol): boolean {
   return result
 }
 
-function ownKeys(target: object): (string | number | symbol)[] {
+function ownKeys(target: object): (string | symbol)[] {
   track(target, TrackOpTypes.ITERATE, ITERATE_KEY)
   return Reflect.ownKeys(target)
 }
@@ -186,7 +186,7 @@ export const mutableHandlers: ProxyHandler<object> = {
   set,
   deleteProperty,
   has,
-  ownKeys,
+  ownKeys
 }
 
 export const readonlyHandlers: ProxyHandler<object> = {

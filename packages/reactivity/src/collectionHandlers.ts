@@ -6,7 +6,7 @@ import { reactive, ReactiveFlags, toRaw } from './reactive'
 export type CollectionTypes = IterableCollections | WeakCollections
 
 type IterableCollections = Map<any, any> | Set<any>
-type WeakCollections = WeakMap<any, any> | Set<any>
+type WeakCollections = WeakMap<any, any> | WeakSet<any>
 type MapTypes = Map<any, any> | WeakMap<any, any>
 type SetTypes = Set<any> | WeakSet<any>
 
@@ -226,7 +226,7 @@ const mutableInstrumentations: Record<string, Function> = {
   get(this: MapTypes, key: unknown) {
     return get(this, key)
   },
-  get size() {
+  size() {
     return size(this as unknown as IterableCollections)
   },
   has,
@@ -241,7 +241,7 @@ const shallowInstrumentations: Record<string, Function> = {
   get(this: MapTypes, key: unknown) {
     return get(this, key, false, true)
   },
-  get size() {
+  size() {
     return size(this as unknown as IterableCollections)
   },
   has,
@@ -256,7 +256,7 @@ const readonlyInstrumentations: Record<string, Function> = {
   get(this: MapTypes, key: unknown) {
     return get(this, key, true)
   },
-  get size() {
+  size() {
     return size(this as unknown as IterableCollections, true)
   },
   has(this: MapTypes, key: unknown) {
