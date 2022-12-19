@@ -199,13 +199,13 @@ function createIterableMethod(
           ? { value, done }
           : {
               value: isPair ? [wrap(value[0]), wrap(value[1])] : wrap(value),
-              done,
+              done
             }
       },
       // iterator protocol
       [Symbol.iterator]() {
         return this
-      },
+      }
     }
   }
 }
@@ -234,7 +234,7 @@ const mutableInstrumentations: Record<string, Function> = {
   set,
   delete: deleteEntry,
   clear,
-  forEach: createForEach(false, false),
+  forEach: createForEach(false, false)
 }
 
 const shallowInstrumentations: Record<string, Function> = {
@@ -249,7 +249,7 @@ const shallowInstrumentations: Record<string, Function> = {
   set,
   delete: deleteEntry,
   clear,
-  forEach: createForEach(false, true),
+  forEach: createForEach(false, true)
 }
 
 const readonlyInstrumentations: Record<string, Function> = {
@@ -266,11 +266,11 @@ const readonlyInstrumentations: Record<string, Function> = {
   set: createReadonlyMethod(TriggerOpTypes.SET),
   delete: createReadonlyMethod(TriggerOpTypes.DELETE),
   clear: createReadonlyMethod(TriggerOpTypes.CLEAR),
-  forEach: createForEach(true, false),
+  forEach: createForEach(true, false)
 }
 
 const iterationMethods = ['keys', 'values', 'entries', Symbol.iterator]
-iterationMethods.forEach((method) => {
+iterationMethods.forEach(method => {
   mutableInstrumentations[method as string] = createIterableMethod(
     method,
     false,
@@ -319,15 +319,15 @@ function createInstrumentationGetter(isReadonly: boolean, shallow: boolean) {
 }
 
 export const mutableCollectionHandlers: ProxyHandler<CollectionTypes> = {
-  get: createInstrumentationGetter(false, false),
+  get: createInstrumentationGetter(false, false)
 }
 
 export const shallowCollectionHandlers: ProxyHandler<CollectionTypes> = {
-  get: createInstrumentationGetter(false, true),
+  get: createInstrumentationGetter(false, true)
 }
 
 export const readonlyCollectionHandlers: ProxyHandler<CollectionTypes> = {
-  get: createInstrumentationGetter(true, false),
+  get: createInstrumentationGetter(true, false)
 }
 
 function checkIdentityKeys(

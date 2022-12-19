@@ -5,14 +5,14 @@ import {
   isArray,
   isIntegerKey,
   isObject,
-  isSymbol,
+  isSymbol
 } from '@vue/shared'
 import {
   enableTracking,
   ITERATE_KEY,
   pauseTracking,
   track,
-  trigger,
+  trigger
 } from './effect'
 import { TrackOpTypes, TriggerOpTypes } from './operations'
 import {
@@ -22,13 +22,13 @@ import {
   readonly,
   readonlyMap,
   Target,
-  toRaw,
+  toRaw
 } from './reactive'
 import { isRef } from './ref'
 
 const builtInSymbols = new Set(
   Object.getOwnPropertyNames(Symbol)
-    .map((key) => (Symbol as any)[key])
+    .map(key => (Symbol as any)[key])
     .filter(isSymbol)
 )
 
@@ -40,7 +40,7 @@ const shallowReadonlyGet = /*#__PURE__*/ createGetter(true, true)
 const arrayInstrumentations: Record<string, Function> = {}
 // instrument identity-sensitive Array methods to account for possible reactive
 // values
-;(['includes', 'indexOf', 'lastIndexOf'] as const).forEach((key) => {
+;(['includes', 'indexOf', 'lastIndexOf'] as const).forEach(key => {
   const method = Array.prototype[key] as any
   arrayInstrumentations[key] = function (this: unknown[], ...args: unknown[]) {
     const arr = toRaw(this)
@@ -59,7 +59,7 @@ const arrayInstrumentations: Record<string, Function> = {}
 })
 // instrument length-altering mutation methods to avoid length being tracked
 // which leads to infinite loops in some cases (#2137)
-;(['push', 'pop', 'shift', 'unshift', 'splice'] as const).forEach((key) => {
+;(['push', 'pop', 'shift', 'unshift', 'splice'] as const).forEach(key => {
   const method = Array.prototype[key] as any
   arrayInstrumentations[key] = function (this: unknown[], ...args: unknown[]) {
     pauseTracking()
@@ -208,7 +208,7 @@ export const readonlyHandlers: ProxyHandler<object> = {
       )
     }
     return true
-  },
+  }
 }
 
 export const shallowReactiveHandlers: ProxyHandler<object> = extend(
@@ -216,7 +216,7 @@ export const shallowReactiveHandlers: ProxyHandler<object> = extend(
   mutableHandlers,
   {
     get: shallowGet,
-    set: shallowSet,
+    set: shallowSet
   }
 )
 
@@ -227,6 +227,6 @@ export const shallowReadonlyHandlers: ProxyHandler<object> = extend(
   {},
   readonlyHandlers,
   {
-    get: shallowReadonlyGet,
+    get: shallowReadonlyGet
   }
 )

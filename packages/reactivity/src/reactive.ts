@@ -3,12 +3,12 @@ import {
   mutableHandlers,
   readonlyHandlers,
   shallowReactiveHandlers,
-  shallowReadonlyHandlers,
+  shallowReadonlyHandlers
 } from './baseHandlers'
 import {
   mutableCollectionHandlers,
   readonlyCollectionHandlers,
-  shallowCollectionHandlers,
+  shallowCollectionHandlers
 } from './collectionHandlers'
 import { Ref, UnwrapRef } from './ref'
 
@@ -16,7 +16,7 @@ export const enum ReactiveFlags {
   SKIP = '__v_skip',
   IS_REACTIVE = '__v_isReactive',
   IS_READONLY = '__v_isReadonly',
-  RAW = '__v_raw',
+  RAW = '__v_raw'
 }
 
 export interface Target {
@@ -32,7 +32,7 @@ export const readonlyMap = new WeakMap<Target, any>()
 const enum TargetType {
   INVALID = 0,
   COMMON = 1,
-  COLLECTION = 2,
+  COLLECTION = 2
 }
 
 function targetTypeMap(rawType: string) {

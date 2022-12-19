@@ -54,5 +54,5 @@ export function looseEqual(a: any, b: any): boolean {
 }
 
 export function looseIndexOf(arr: any[], val: any): number {
-  return arr.findIndex((item) => looseEqual(item, val))
+  return arr.findIndex(item => looseEqual(item, val))
 }

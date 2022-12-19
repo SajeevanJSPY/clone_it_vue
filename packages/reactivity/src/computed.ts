@@ -41,7 +41,7 @@ class ComputedRefImpl<T> {
           this._dirty = true
           trigger(toRaw(this), TriggerOpTypes.SET, 'value')
         }
-      },
+      }
     })
 
     this[ReactiveFlags.IS_READONLY] = isReadonly

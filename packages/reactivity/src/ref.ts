@@ -91,7 +91,7 @@ const shallowUnwrapHandlers: ProxyHandler<any> = {
     } else {
       return Reflect.set(target, key, value, receiver)
     }
-  },
+  }
 }
 
 export function proxyRefs<T extends object>(

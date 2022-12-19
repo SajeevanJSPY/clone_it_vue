@@ -156,7 +156,7 @@ export function track(target: object, type: TrackOpTypes, key: unknown) {
         effect: activeEffect,
         target,
         type,
-        key,
+        key
       })
     }
   }
@@ -179,7 +179,7 @@ export function trigger(
   const effects = new Set<ReactiveEffect>()
   const add = (effectToAdd: Set<ReactiveEffect> | undefined) => {
     if (effectToAdd) {
-      effectToAdd.forEach((effect) => {
+      effectToAdd.forEach(effect => {
         if (effect !== activeEffect || effect.options.allowRecurse) {
           effects.add(effect)
         }
@@ -241,7 +241,7 @@ export function trigger(
         type,
         newValue,
         oldValue,
-        oldTarget,
+        oldTarget
       })
     }
     if (effect.options.scheduler) {

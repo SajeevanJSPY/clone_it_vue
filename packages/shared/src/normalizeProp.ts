@@ -35,7 +35,7 @@ export function parseStringStyle(cssText: string): NormalizedStyle {
   cssText
     .replace(styleCommentRE, '')
     .split(listDelimiterRE)
-    .forEach((item) => {
+    .forEach(item => {
       if (item) {
         const tmp = item.split(propertyDelimiterRE)
         tmp.length > 1 && (ret[tmp[0].trim()] = tmp[1].trim())
@@ -85,7 +85,7 @@ export function normalizeClass(value: unknown): string {
 
 export function normalizeProps(props: Record<string, any> | null) {
   if (!props) return null
-  let { class: klass, style } = props
+  const { class: klass, style } = props
   if (klass && !isString(klass)) {
     props.class = normalizeClass(klass)
   }

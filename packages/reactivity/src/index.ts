@@ -12,7 +12,7 @@ export {
   ToRefs,
   UnwrapRef,
   ShallowUnwrapRef,
-  RefUnwrapBailTypes,
+  RefUnwrapBailTypes
 } from './ref'
 export {
   reactive,
@@ -25,7 +25,7 @@ export {
   markRaw,
   toRaw,
   ReactiveFlags,
-  DeepReadonly,
+  DeepReadonly
 } from './reactive'
 export {
   computed,
@@ -33,7 +33,7 @@ export {
   WritableComputedRef,
   WritableComputedOptions,
   ComputedGetter,
-  ComputedSetter,
+  ComputedSetter
 } from './computed'
 export {
   effect,
@@ -46,6 +46,6 @@ export {
   ITERATE_KEY,
   ReactiveEffect,
   ReactiveEffectOptions,
-  DebuggerEvent,
+  DebuggerEvent
 } from './effect'
 export { TrackOpTypes, TriggerOpTypes } from './operations'
