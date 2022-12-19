@@ -18,6 +18,10 @@ module.exports = {
         "@typescript-eslint"
     ],
     "rules": {
-        "@typescript-eslint/no-explicit-any": "off"
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-extra-semi": "off",
+        "no-prototype-builtins": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/ban-types": "off"
     }
 }
