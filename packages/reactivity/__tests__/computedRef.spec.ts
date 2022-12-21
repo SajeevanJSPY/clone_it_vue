@@ -59,4 +59,27 @@ describe('reactivity/computed', () => {
     expect(c2.value).toBe(2)
     expect(c1.value).toBe(1)
   })
+
+  it('should trigger effect when chained', () => {
+    const value = reactive({ foo: 0 })
+    const getter1 = jest.fn(() => value.foo)
+    const getter2 = jest.fn(() => {
+      return c1.value + 1
+    })
+    const c1 = computed(getter1)
+    const c2 = computed(getter2)
+
+    let dummy
+    effect(() => {
+      dummy = c2.value
+    })
+    expect(dummy).toBe(1)
+    expect(getter1).toHaveBeenCalledTimes(1)
+    expect(getter2).toHaveBeenCalledTimes(1)
+    value.foo++
+    expect(dummy).toBe(2)
+    // should not result in duplicate calls
+    expect(getter1).toHaveBeenCalledTimes(2)
+    expect(getter2).toHaveBeenCalledTimes(2)
+  })
 })
