@@ -1,4 +1,4 @@
-import { computed, reactive, effect } from '../src'
+import { computed, reactive, effect, ref } from '../src'
 
 describe('reactivity/computed', () => {
   it('should return updated value', () => {
@@ -96,5 +96,38 @@ describe('reactivity/computed', () => {
     cValue.effect.stop()
     value.foo = 2
     expect(dummy).toBe(1)
+  })
+
+  it('should support setter', () => {
+    const n = ref(1)
+    const plusOne = computed({
+      get: () => n.value + 1,
+      set: val => {
+        n.value = val - 1
+      }
+    })
+
+    expect(plusOne.value).toBe(2)
+    n.value++
+    expect(plusOne.value).toBe(3)
+  })
+
+  it('should trigger effect w/ setter', () => {
+    const n = ref(1)
+    const plusOne = computed({
+      get: () => n.value + 1,
+      set: val => {
+        n.value = val - 1
+      }
+    })
+
+    let dummy
+    effect(() => {
+      dummy = n.value
+    })
+    expect(dummy).toBe(1)
+
+    plusOne.value = 0
+    expect(dummy).toBe(-1)
   })
 })
