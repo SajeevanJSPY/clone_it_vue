@@ -1,6 +1,7 @@
 module.exports = {
     testEnvironment: 'jsdom',
     preset: "ts-jest",
+    setupFilesAfterEnv: ['./scripts/setupJestEnv.ts'],
     globals: {
         __DEV__: true,
         __TEST__: true,
