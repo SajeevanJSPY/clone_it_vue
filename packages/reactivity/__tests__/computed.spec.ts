@@ -1,4 +1,4 @@
-import { computed, reactive, effect, ref } from '../src'
+import { computed, reactive, effect, ref, WritableComputedRef } from '../src'
 
 describe('reactivity/computed', () => {
   it('should return updated value', () => {
@@ -147,5 +147,15 @@ describe('reactivity/computed', () => {
     // on the 2nd run, plusOne.value should have already updated.
     console.log(plusOneValues)
     expect(plusOneValues).toMatchObject([1, 2, 2])
+  })
+
+  it('should warn if trying to set a readonly computed', () => {
+    const n = ref(1)
+    const plusOne = computed(() => n.value + 1);
+    (plusOne as WritableComputedRef<number>).value++ // Type cast to prevent TS from preventing error
+
+    expect(
+      'Write operation failed: computed value is readonly'
+    ).toHaveBeenWarnedLast()
   })
 })
