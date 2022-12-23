@@ -2,14 +2,14 @@ import { generateCodeFrame } from '../src/codeframe'
 
 describe('compiler: codeframe', () => {
   const source = `
-<div>
+  <div>
     <template key="one"></template>
     <ul>
-        <li v-for="footbar">hi</li>
+      <li v-for="foobar">hi</li>
     </ul>
     <template key="two"></template>
-</div>
-    `.trim()
+  </div>
+      `.trim()
 
   test('linear near top', () => {
     const keyStart = source.indexOf(`key="one"`)
@@ -20,7 +20,7 @@ describe('compiler: codeframe', () => {
   test('line in middle', () => {
     // should cover 5 lines
     const forStart = source.indexOf(`v-for=`)
-    const forEnd = forStart + `v-for="foobar"`.length
+    const forEnd = forStart + `v-for="one"`.length
     expect(generateCodeFrame(source, forStart, forEnd)).toMatchSnapshot()
   })
 
@@ -32,9 +32,10 @@ describe('compiler: codeframe', () => {
 
   test('multi-line highlights', () => {
     const source = `
-<div attr="some 
+<div attr="some
   multiline
-attr">
+attr
+">
 </div>
     `.trim()
 
@@ -42,4 +43,49 @@ attr">
     const attrEnd = source.indexOf(`">`) + 1
     expect(generateCodeFrame(source, attrStart, attrEnd)).toMatchSnapshot()
   })
+
+  {
+    const source = `
+<template>
+  <div>
+    <h1>Sign In</h1>
+    <form>
+      <div>
+        <label for="email">Email</label>
+        <input name="email" type="text"/>
+      </div>
+      <div id="hook">
+        <label for="password">Password</label>
+        <input name="password" type="password"/>
+      </div>
+    </form>
+  </div>
+</template>
+`
+    const startToken = '<div id="hook">'
+    const endToken = '</div>'
+
+    // Explicitly ensure the line-ending for the platform instead of assuming
+    // the newline sequences used in the source above.
+    const unixNewlineSource = source.replace(/\r\n/g, '\n')
+    const windowsNewLineSource = unixNewlineSource.replace(/\n/g, '\r\n')
+
+    test('newline sequences - windows', () => {
+      const keyStart = windowsNewLineSource.indexOf(startToken)
+      const keyEnd =
+        windowsNewLineSource.indexOf(endToken, keyStart) + endToken.length
+      expect(
+        generateCodeFrame(windowsNewLineSource, keyStart, keyEnd)
+      ).toMatchSnapshot()
+    })
+
+    test('newline sequences - unix', () => {
+      const keyStart = unixNewlineSource.indexOf(startToken)
+      const keyEnd =
+        unixNewlineSource.indexOf(endToken, keyStart) + endToken.length
+      expect(
+        generateCodeFrame(unixNewlineSource, keyStart, keyEnd)
+      ).toMatchSnapshot()
+    })
+  }
 })
