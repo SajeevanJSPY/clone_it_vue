@@ -1,8 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
-import { looseEqual } from '../src/looseEqual'
+import { looseEqual } from '../src'
 
 describe('utils/looseEqual', () => {
   test('compares booleans correctly', () => {
@@ -25,15 +21,15 @@ describe('utils/looseEqual', () => {
   })
 
   test('compares numbers correctly', () => {
-    const integer = 100
+    const number = 100
     const decimal = 2.5
     const multiplier = 1.0000001
 
-    expect(looseEqual(integer, integer)).toBe(true)
-    expect(looseEqual(integer, integer - 1)).toBe(false)
+    expect(looseEqual(number, number)).toBe(true)
+    expect(looseEqual(number, number - 1)).toBe(false)
     expect(looseEqual(decimal, decimal)).toBe(true)
     expect(looseEqual(decimal, decimal * multiplier)).toBe(false)
-    expect(looseEqual(integer, integer * decimal)).toBe(false)
+    expect(looseEqual(number, number * multiplier)).toBe(false)
     expect(looseEqual(multiplier, multiplier)).toBe(true)
   })
 
@@ -49,8 +45,20 @@ describe('utils/looseEqual', () => {
     expect(looseEqual(date1, date2)).toBe(true)
     // Dates with slightly different time (ms)
     expect(looseEqual(date1, date3)).toBe(false)
-    // Dates with different years
+    // Dates with different year
     expect(looseEqual(date1, date4)).toBe(false)
+  })
+
+  test('compares symbols correctly', () => {
+    const symbol1 = Symbol('a')
+    const symbol2 = Symbol('a')
+    const symbol3 = Symbol('b')
+    const notSymbol = 0
+
+    expect(looseEqual(symbol1, symbol1)).toBe(true)
+    expect(looseEqual(symbol1, symbol2)).toBe(false)
+    expect(looseEqual(symbol1, symbol3)).toBe(false)
+    expect(looseEqual(symbol1, notSymbol)).toBe(false)
   })
 
   test('compares files correctly', () => {
@@ -89,7 +97,7 @@ describe('utils/looseEqual', () => {
     expect(looseEqual(file1, file3)).toBe(false)
     // Two different file types
     expect(looseEqual(file1, file4)).toBe(false)
-    // Two file with same name, modified date, but different content
+    // Two files with same name, modified date, but different content
     expect(looseEqual(file5, file6)).toBe(false)
   })
 
@@ -99,18 +107,18 @@ describe('utils/looseEqual', () => {
     const arr3 = [1, 2, 3, 4, 5]
     const arr4 = [1, 2, 3, 4, { a: 5 }]
 
-    // Identical array  references
-    expect(looseEqual(arr1, arr2)).toBe(true)
-    // Different array reference with identical values
-    expect(looseEqual(arr1, arr2.slice())).toBe(true)
+    // Identical array references
+    expect(looseEqual(arr1, arr1)).toBe(true)
+    // Different array references with identical values
+    expect(looseEqual(arr1, arr1.slice())).toBe(true)
     expect(looseEqual(arr4, arr4.slice())).toBe(true)
     // Array with one value different (loose)
     expect(looseEqual(arr1, arr2)).toBe(true)
-    // Array with different value different
+    // Array with one value different
     expect(looseEqual(arr3, arr4)).toBe(false)
-    // Array with different lengths
+    // Arrays with different lengths
     expect(looseEqual(arr1, arr3)).toBe(false)
-    // Arrays with different order
+    // Arrays with values in different order
     expect(looseEqual(arr1, arr1.slice().reverse())).toBe(false)
   })
 
@@ -130,7 +138,7 @@ describe('utils/looseEqual', () => {
     expect(looseEqual(rx3, rx4)).toBe(false)
   })
 
-  test('compare objects correctly', () => {
+  test('compares objects correctly', () => {
     const obj1 = { foo: 'bar' }
     const obj2 = { foo: 'bar1' }
     const obj3 = { a: 1, b: 2, c: 3 }
@@ -157,7 +165,7 @@ describe('utils/looseEqual', () => {
     expect(looseEqual(nestedObj1, nestedObj2)).toBe(false)
   })
 
-  test('compare different types correctly', () => {
+  test('compares different types correctly', () => {
     const obj1 = {}
     const obj2 = { a: 1 }
     const obj3 = { 0: 0, 1: 1, 2: 2 }
@@ -189,7 +197,7 @@ describe('utils/looseEqual', () => {
     expect(looseEqual(obj3, arr3)).toBe(false)
   })
 
-  test('compare null and undefined values correctly', () => {
+  test('compares null and undefined values correctly', () => {
     expect(looseEqual(null, null)).toBe(true)
     expect(looseEqual(undefined, undefined)).toBe(true)
     expect(looseEqual(void 0, undefined)).toBe(true)
