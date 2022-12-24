@@ -8,7 +8,8 @@ import {
   DebuggerEvent,
   toRaw,
   TrackOpTypes,
-  ITERATE_KEY
+  ITERATE_KEY,
+  TriggerOpTypes
 } from '../src'
 
 describe('reactivity/computed', () => {
@@ -225,5 +226,41 @@ describe('reactivity/computed', () => {
         key: ITERATE_KEY
       }
     ])
+  })
+
+  it('debug: onTrigger', () => {
+    let events: DebuggerEvent[] = []
+    const onTrigger = jest.fn((e: DebuggerEvent) => {
+      events.push(e)
+    })
+    const obj = reactive({ foo: 1 })
+    const c = computed(() => obj.foo, { onTrigger })
+
+    // computed won't trigger compute until accessed
+    c.value
+
+    obj.foo++
+    expect(c.value).toBe(2)
+    expect(onTrigger).toHaveBeenCalledTimes(1)
+    expect(events[0]).toEqual({
+      effect: c.effect,
+      target: toRaw(obj),
+      type: TriggerOpTypes.SET,
+      key: 'foo',
+      oldValue: 1,
+      newValue: 2
+    })
+
+    // @ts-ignore
+    delete obj.foo
+    expect(c.value).toBeUndefined()
+    expect(onTrigger).toHaveBeenCalledTimes(2)
+    expect(events[1]).toEqual({
+      effect: c.effect,
+      target: toRaw(obj),
+      type: TriggerOpTypes.DELETE,
+      key: 'foo',
+      oldValue: 2
+    })
   })
 })
