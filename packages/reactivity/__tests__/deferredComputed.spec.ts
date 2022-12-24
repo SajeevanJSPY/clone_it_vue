@@ -1,4 +1,4 @@
-import { deferredComputed, effect, ref } from '../src'
+import { computed, deferredComputed, effect, ref } from '../src'
 
 describe('deferred computed', () => {
   const tick = Promise.resolve()
@@ -73,5 +73,37 @@ describe('deferred computed', () => {
     expect(c1Spy).toHaveBeenCalledTimes(2)
     expect(c2Spy).toHaveBeenCalledTimes(2)
     expect(effectSpy).toHaveBeenCalledTimes(2)
+  })
+
+  test('chained computed avoid re-compute', async () => {
+    const effectSpy = jest.fn()
+    const c1Spy = jest.fn()
+    const c2Spy = jest.fn()
+
+    const src = ref(0)
+    const c1 = deferredComputed(() => {
+      c1Spy()
+      return src.value % 2
+    })
+    const c2 = computed(() => {
+      c2Spy()
+      return c1.value + 1
+    })
+
+    effect(() => {
+      effectSpy(c2.value)
+    })
+
+    expect(effectSpy).toHaveBeenCalledTimes(1)
+    src.value = 2
+    src.value = 4
+    src.value = 6
+    await tick
+    // c1 should re-compute once.
+    expect(c1Spy).toHaveBeenCalledTimes(2)
+    // c2 should not have to re-compute because c1 did not change.
+    expect(c2Spy).toHaveBeenCalledTimes(1)
+    // effect should not trigger because c2 did not change.
+    expect(effectSpy).toHaveBeenCalledTimes(1)
   })
 })
