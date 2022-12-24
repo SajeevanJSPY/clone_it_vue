@@ -4,7 +4,11 @@ import {
   effect,
   ref,
   WritableComputedRef,
-  isReadonly
+  isReadonly,
+  DebuggerEvent,
+  toRaw,
+  TrackOpTypes,
+  ITERATE_KEY
 } from '../src'
 
 describe('reactivity/computed', () => {
@@ -182,5 +186,44 @@ describe('reactivity/computed', () => {
     })
     expect(isReadonly(z)).toBeFalsy()
     expect(isReadonly(z.value.a)).toBeFalsy()
+  })
+
+  it('should expose value when stopped', () => {
+    const x = computed(() => 1)
+    x.effect.stop()
+    expect(x.value).toBe(1)
+  })
+
+  it('debug: onTrack', () => {
+    let events: DebuggerEvent[] = []
+    const onTrack = jest.fn((e: DebuggerEvent) => {
+      events.push(e)
+    })
+    const obj = reactive({ foo: 1, bar: 2 })
+    const c = computed(() => (obj.foo, 'bar' in obj, Object.keys(obj)), {
+      onTrack
+    })
+    expect(c.value).toEqual(['foo', 'bar'])
+    expect(onTrack).toHaveBeenCalledTimes(3)
+    expect(events).toEqual([
+      {
+        effect: c.effect,
+        target: toRaw(obj),
+        type: TrackOpTypes.GET,
+        key: 'foo'
+      },
+      {
+        effect: c.effect,
+        target: toRaw(obj),
+        type: TrackOpTypes.HAS,
+        key: 'bar'
+      },
+      {
+        effect: c.effect,
+        target: toRaw(obj),
+        type: TrackOpTypes.ITERATE,
+        key: ITERATE_KEY
+      }
+    ])
   })
 })
