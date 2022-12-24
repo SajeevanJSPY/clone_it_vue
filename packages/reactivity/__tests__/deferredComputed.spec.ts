@@ -106,4 +106,33 @@ describe('deferred computed', () => {
     // effect should not trigger because c2 did not change.
     expect(effectSpy).toHaveBeenCalledTimes(1)
   })
+
+  test('chained computed value invalidation', async () => {
+    const effectSpy = jest.fn()
+    const c1Spy = jest.fn()
+    const c2Spy = jest.fn()
+
+    const src = ref(0)
+    const c1 = deferredComputed(() => {
+      c1Spy()
+      return src.value % 2
+    })
+    const c2 = deferredComputed(() => {
+      c2Spy()
+      return c1.value + 1
+    })
+
+    effect(() => {
+      effectSpy(c2.value)
+    })
+
+    expect(effectSpy).toHaveBeenCalledTimes(1)
+    expect(effectSpy).toHaveBeenCalledTimes(1)
+    expect(c2.value).toBe(1)
+
+    src.value = 1
+    // value should be available sync
+    expect(c2.value).toBe(2)
+    expect(c2Spy).toHaveBeenCalledTimes(2)
+  })
 })
