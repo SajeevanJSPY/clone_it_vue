@@ -135,4 +135,31 @@ describe('deferred computed', () => {
     expect(c2.value).toBe(2)
     expect(c2Spy).toHaveBeenCalledTimes(2)
   })
+
+  test('sync access of invalidated chained computed should not prevent final effect from running', async () => {
+    const effectSpy = jest.fn()
+    const c1Spy = jest.fn()
+    const c2Spy = jest.fn()
+
+    const src = ref(0)
+    const c1 = deferredComputed(() => {
+      c1Spy()
+      return src.value % 2
+    })
+    const c2 = deferredComputed(() => {
+      c2Spy()
+      return c1.value + 1
+    })
+
+    effect(() => {
+      effectSpy(c2.value)
+    })
+    expect(effectSpy).toHaveBeenCalledTimes(1)
+
+    src.value = 1
+    // sync access c2
+    c2.value
+    await tick
+    expect(effectSpy).toHaveBeenCalledTimes(2)
+  })
 })
