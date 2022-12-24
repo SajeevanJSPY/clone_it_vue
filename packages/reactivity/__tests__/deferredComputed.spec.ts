@@ -21,4 +21,27 @@ describe('deferred computed', () => {
     expect(spy).toHaveBeenCalledTimes(2)
     expect(spy).toHaveBeenCalledWith(c.value)
   })
+
+  test('should not trigger if value did not change', async () => {
+    const src = ref(0)
+    const c = deferredComputed(() => src.value % 2)
+    const spy = jest.fn()
+    effect(() => {
+      spy(c.value)
+    })
+    expect(spy).toHaveBeenCalledTimes(1)
+    src.value = 1
+    src.value = 2
+
+    await tick
+    // should not trigger
+    expect(spy).toHaveBeenCalledTimes(1)
+
+    src.value = 3
+    src.value = 4
+    src.value = 5
+    await tick
+    // should trigger because latest value changes
+    expect(spy).toHaveBeenCalledTimes(2)
+  })
 })
