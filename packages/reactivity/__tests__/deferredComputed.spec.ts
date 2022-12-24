@@ -44,4 +44,34 @@ describe('deferred computed', () => {
     // should trigger because latest value changes
     expect(spy).toHaveBeenCalledTimes(2)
   })
+
+  test('chained computed trigger', async () => {
+    const effectSpy = jest.fn()
+    const c1Spy = jest.fn()
+    const c2Spy = jest.fn()
+
+    const src = ref(0)
+    const c1 = deferredComputed(() => {
+      c1Spy()
+      return src.value % 2
+    })
+    const c2 = deferredComputed(() => {
+      c2Spy()
+      return c1.value + 1
+    })
+
+    effect(() => {
+      effectSpy(c2.value)
+    })
+
+    expect(c1Spy).toHaveBeenCalledTimes(1)
+    expect(c2Spy).toHaveBeenCalledTimes(1)
+    expect(effectSpy).toHaveBeenCalledTimes(1)
+
+    src.value = 1
+    await tick
+    expect(c1Spy).toHaveBeenCalledTimes(2)
+    expect(c2Spy).toHaveBeenCalledTimes(2)
+    expect(effectSpy).toHaveBeenCalledTimes(2)
+  })
 })
