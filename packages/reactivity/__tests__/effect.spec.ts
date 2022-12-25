@@ -49,4 +49,44 @@ describe('reactivity/effect', () => {
     counter.nested.num = 8
     expect(dummy).toBe(8)
   })
+
+  it('should observe delete operations', () => {
+    let dummy
+    const obj = reactive<{
+      prop?: string
+    }>({ prop: 'value' })
+    effect(() => (dummy = obj.prop))
+
+    expect(dummy).toBe('value')
+    delete obj.prop
+    expect(dummy).toBeUndefined()
+  })
+
+  it('should observe has operations', () => {
+    let dummy
+    const obj = reactive<{ prop?: string | number }>({ prop: 'value' })
+    effect(() => (dummy = 'prop' in obj))
+
+    expect(dummy).toBeTruthy()
+    delete obj.prop
+    expect(dummy).toBeFalsy()
+    obj.prop = 12
+    expect(dummy).toBeTruthy()
+  })
+
+  it('should obsreve properties on the prototype chain', () => {
+    let dummy
+    const counter = reactive<{ num?: number }>({ num: 0 })
+    const parentCounter = reactive({ num: 2 })
+    Object.setPrototypeOf(counter, parentCounter)
+    effect(() => (dummy = counter.num))
+
+    expect(dummy).toBe(0)
+    delete counter.num
+    expect(dummy).toBe(2)
+    parentCounter.num = 4
+    expect(dummy).toBe(4)
+    counter.num = 3
+    expect(dummy).toBe(3)
+  })
 })
