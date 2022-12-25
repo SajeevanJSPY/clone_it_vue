@@ -89,4 +89,56 @@ describe('reactivity/effect', () => {
     counter.num = 3
     expect(dummy).toBe(3)
   })
+
+  it('should observe inherited property accessor', () => {
+    let dummy, parentDummy, hiddenValue: any
+    const obj = reactive<{ prop?: number }>({})
+    const parent = reactive({
+      set prop(value) {
+        hiddenValue = value
+      },
+      get prop() {
+        return hiddenValue
+      }
+    })
+    Object.setPrototypeOf(obj, parent)
+    effect(() => (dummy = obj.prop))
+    effect(() => (parentDummy = parent.prop))
+
+    expect(dummy).toBeUndefined()
+    expect(parentDummy).toBeUndefined()
+    obj.prop = 4
+    expect(dummy).toBe(4)
+    // this doesn't work, should it?
+    // expect(parentDummy).toBe(4)
+    parent.prop = 2
+    expect(dummy).toBe(2)
+    expect(parentDummy).toBe(2)
+  })
+
+  it('should observe function call chains', () => {
+    let dummy
+    const counter = reactive({ num: 0 })
+    effect(() => (dummy = getNum()))
+
+    function getNum() {
+      return counter.num
+    }
+
+    expect(dummy).toBe(0)
+    counter.num = 2
+    expect(dummy).toBe(2)
+  })
+
+  it('should observe iteration', () => {
+    let dummy
+    const list = reactive(['Hello'])
+    effect(() => (dummy = list.join(' ')))
+
+    expect(dummy).toBe('Hello')
+    list.push('World!')
+    expect(dummy).toBe('Hello World!')
+    list.shift()
+    expect(dummy).toBe('World!')
+  })
 })
