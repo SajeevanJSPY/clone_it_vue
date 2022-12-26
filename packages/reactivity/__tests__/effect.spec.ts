@@ -141,4 +141,46 @@ describe('reactivity/effect', () => {
     list.shift()
     expect(dummy).toBe('World!')
   })
+
+  it('should observe implicit array length changes', () => {
+    let dummy
+    const list = reactive(['Hello'])
+    effect(() => (dummy = list.join(' ')))
+
+    expect(dummy).toBe('Hello')
+    list[1] = 'World!'
+    expect(dummy).toBe('Hello World!')
+    list[3] = 'Hello!'
+    expect(dummy).toBe('Hello World!  Hello!')
+  })
+
+  it('should observe sparse array mutations', () => {
+    let dummy
+    const list = reactive<string[]>([])
+    list[1] = 'World!'
+    effect(() => (dummy = list.join(' ')))
+
+    expect(dummy).toBe(' World!')
+    list[0] = 'Hello'
+    expect(dummy).toBe('Hello World!')
+    list.pop()
+    expect(dummy).toBe('Hello')
+  })
+
+  it('should observe enumeration', () => {
+    let dummy = 0
+    const numbers = reactive<Record<string, number>>({ num1: 3 })
+    effect(() => {
+      dummy = 0
+      for (let key in numbers) {
+        dummy += numbers[key]
+      }
+    })
+
+    expect(dummy).toBe(3)
+    numbers.num2 = 4
+    expect(dummy).toBe(7)
+    delete numbers.num1
+    expect(dummy).toBe(4)
+  })
 })
