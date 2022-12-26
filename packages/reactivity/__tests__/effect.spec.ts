@@ -183,4 +183,46 @@ describe('reactivity/effect', () => {
     delete numbers.num1
     expect(dummy).toBe(4)
   })
+
+  it('should observe symbol keyed properties', () => {
+    const key = Symbol('symbol keyed prop')
+    let dummy, hasDummy
+    const obj = reactive<{ [key]?: string }>({ [key]: 'value' })
+    effect(() => (dummy = obj[key]))
+    effect(() => (hasDummy = key in obj))
+
+    expect(dummy).toBe('value')
+    expect(hasDummy).toBeTruthy()
+    obj[key] = 'newValue'
+    expect(dummy).toBe('newValue')
+    delete obj[key]
+    expect(dummy).toBeUndefined()
+    expect(hasDummy).toBeFalsy()
+  })
+
+  it('should not observe well-known keyed properties', () => {
+    const key = Symbol.isConcatSpreadable
+    let dummy
+    const array: any = reactive([])
+    effect(() => (dummy = array[key]))
+
+    expect(array[key]).toBeUndefined()
+    expect(dummy).toBeUndefined()
+    array[key] = true
+    expect(array[key]).toBeTruthy()
+    expect(dummy).toBeUndefined()
+  })
+
+  it('should observe function valued properties', () => {
+    const oldFunc = () => {}
+    const newFunc = () => {}
+
+    let dummy
+    const obj = reactive({ func: oldFunc })
+    effect(() => (dummy = obj.func))
+
+    expect(dummy).toBe(oldFunc)
+    obj.func = newFunc
+    expect(dummy).toBe(newFunc)
+  })
 })
