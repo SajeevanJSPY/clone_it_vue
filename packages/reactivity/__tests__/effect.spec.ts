@@ -1,4 +1,4 @@
-import { effect, reactive } from '../src/index'
+import { effect, reactive, toRaw } from '../src/index'
 
 describe('reactivity/effect', () => {
   it('should run the passed function once (wrapped by a effect)', () => {
@@ -272,5 +272,47 @@ describe('reactivity/effect', () => {
     expect(hasSpy).toHaveBeenCalledTimes(1)
     expect(getDummy).toBe('value')
     expect(hasDummy).toBeTruthy()
+  })
+
+  it('should not observe raw mutations', () => {
+    let dummy
+    const obj = reactive<{ prop?: string }>({})
+    effect(() => (dummy = toRaw(obj).prop))
+
+    expect(dummy).toBeUndefined()
+    obj.prop = 'value'
+    expect(dummy).toBeUndefined()
+  })
+
+  it('should not be triggered by raw mutations', () => {
+    let dummy
+    const obj = reactive<{ prop?: string }>({})
+    effect(() => (dummy = obj.prop))
+
+    expect(dummy).toBeUndefined()
+    toRaw(obj).prop = 'value'
+    expect(dummy).toBeUndefined()
+  })
+
+  it('should not be triggered by inherited raw setters', () => {
+    let dummy, parentDummy, hiddenValue: any
+    const obj = reactive<{ prop?: number }>({})
+    const parent = reactive({
+      set prop(value) {
+        hiddenValue = value
+      },
+      get prop() {
+        return hiddenValue
+      }
+    })
+    Object.setPrototypeOf(obj, parent)
+    effect(() => (dummy = obj.prop))
+    effect(() => (parentDummy = parent.prop))
+
+    expect(dummy).toBeUndefined()
+    expect(parentDummy).toBeUndefined()
+    toRaw(obj).prop = 4
+    expect(dummy).toBeUndefined()
+    expect(parentDummy).toBeUndefined()
   })
 })
