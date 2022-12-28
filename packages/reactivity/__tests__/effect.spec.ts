@@ -364,4 +364,61 @@ describe('reactivity/effect', () => {
     expect(counter.num).toEqual(10)
     expect(numSpy).toHaveBeenCalledTimes(10)
   })
+
+  it('should avoid infinite loops with other effects', () => {
+    const nums = reactive({ num1: 0, num2: 1 })
+
+    const spy1 = jest.fn(() => (nums.num1 = nums.num2))
+    const spy2 = jest.fn(() => (nums.num2 = nums.num1))
+    effect(spy1)
+    effect(spy2)
+    expect(nums.num1).toBe(1)
+    expect(nums.num2).toBe(1)
+    expect(spy1).toHaveBeenCalledTimes(1)
+    expect(spy2).toHaveBeenCalledTimes(1)
+    nums.num1 = 4
+    expect(nums.num1).toBe(4)
+    expect(nums.num2).toBe(4)
+    expect(spy1).toHaveBeenCalledTimes(2)
+    expect(spy2).toHaveBeenCalledTimes(2)
+    nums.num1 = 10
+    expect(nums.num1).toBe(10)
+    expect(nums.num2).toBe(10)
+    expect(spy1).toHaveBeenCalledTimes(3)
+    expect(spy2).toHaveBeenCalledTimes(3)
+  })
+
+  it('should return a new reactive version of the function', () => {
+    function greet() {
+      return 'Hello World'
+    }
+    const effect1 = effect(greet)
+    const effect2 = effect(greet)
+    expect(typeof effect1).toBe('function')
+    expect(typeof effect2).toBe('function')
+    expect(effect1).not.toBe(greet)
+    expect(effect1).not.toBe(effect2)
+  })
+
+  it('should discover new branches while running automatically', () => {
+    let dummy
+    const obj = reactive({ prop: 'value', run: false })
+
+    const conditionalSpy = jest.fn(() => {
+      dummy = obj.run ? obj.prop : 'other'
+    })
+    effect(conditionalSpy)
+
+    expect(dummy).toBe('other')
+    expect(conditionalSpy).toHaveBeenCalledTimes(1)
+    obj.prop = 'Hi'
+    expect(dummy).toBe('other')
+    expect(conditionalSpy).toHaveBeenCalledTimes(1)
+    obj.run = true
+    expect(dummy).toBe('Hi')
+    expect(conditionalSpy).toHaveBeenCalledTimes(2)
+    obj.prop = 'World'
+    expect(dummy).toBe('World')
+    expect(conditionalSpy).toHaveBeenCalledTimes(3)
+  })
 })
