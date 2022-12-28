@@ -315,4 +315,53 @@ describe('reactivity/effect', () => {
     expect(dummy).toBeUndefined()
     expect(parentDummy).toBeUndefined()
   })
+
+  it('should avoid implicit infinite recursive loops with itself', () => {
+    const counter = reactive({ num: 0 })
+
+    const counterSpy = jest.fn(() => counter.num++)
+    effect(counterSpy)
+    expect(counter.num).toBe(1)
+    expect(counterSpy).toHaveBeenCalledTimes(1)
+    counter.num = 4
+    expect(counter.num).toBe(5)
+    expect(counterSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it('should avoid infinite recursive loops when use Array.prototype.push/unshift/pop/shift', () => {
+    ;(['push', 'unshift'] as const).forEach(key => {
+      const arr = reactive<number[]>([])
+      const counterSpy1 = jest.fn(() => (arr[key] as any)(1))
+      const counterSpy2 = jest.fn(() => (arr[key] as any)(2))
+      effect(counterSpy1)
+      effect(counterSpy2)
+      expect(arr.length).toBe(2)
+      expect(counterSpy1).toHaveBeenCalledTimes(1)
+      expect(counterSpy2).toHaveBeenCalledTimes(1)
+    })
+    ;(['pop', 'shift'] as const).forEach(key => {
+      const arr = reactive<number[]>([1, 2, 3, 4])
+      const counterSpy1 = jest.fn(() => (arr[key] as any)())
+      const counterSpy2 = jest.fn(() => (arr[key] as any)())
+      effect(counterSpy1)
+      effect(counterSpy2)
+      expect(arr.length).toBe(2)
+      expect(counterSpy1).toHaveBeenCalledTimes(1)
+      expect(counterSpy2).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  it('should allow explicitly recursive raw function loops', () => {
+    const counter = reactive({ num: 0 })
+    const numSpy = jest.fn(() => {
+      counter.num++
+      if (counter.num < 10) {
+        numSpy()
+      }
+    })
+
+    effect(numSpy)
+    expect(counter.num).toEqual(10)
+    expect(numSpy).toHaveBeenCalledTimes(10)
+  })
 })
