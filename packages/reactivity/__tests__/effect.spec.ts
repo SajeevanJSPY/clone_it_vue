@@ -587,4 +587,46 @@ describe('reactivity/effect', () => {
     expect(parentSpy).toHaveBeenCalledTimes(3)
     expect(childSpy).toHaveBeenCalledTimes(5)
   })
+
+  it('should reserve json methods', () => {
+    let dummy = <Record<string, number>>{}
+    const obj = reactive<Record<string, number>>({})
+    effect(() => {
+      dummy = JSON.parse(JSON.stringify(obj))
+    })
+    obj.a = 1
+    expect(dummy.a).toBe(1)
+  })
+
+  it('should observe class method invocations', () => {
+    class Model {
+      count: number
+      constructor() {
+        this.count = 0
+      }
+      inc() {
+        this.count++
+      }
+    }
+    const model = reactive(new Model())
+    let dummy
+    effect(() => {
+      dummy = model.count
+    })
+    expect(dummy).toBe(0)
+    model.inc()
+    expect(dummy).toBe(1)
+  })
+
+  it('lazy', () => {
+    const obj = reactive({ foo: 1 })
+    let dummy
+    const runner = effect(() => (dummy = obj.foo), { lazy: true })
+    expect(dummy).toBeUndefined()
+
+    expect(runner()).toBe(1)
+    expect(dummy).toBe(1)
+    obj.foo = 2
+    expect(dummy).toBe(2)
+  })
 })
