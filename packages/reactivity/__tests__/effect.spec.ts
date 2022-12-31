@@ -6,7 +6,9 @@ import {
   DebuggerEvent,
   TrackOpTypes,
   ITERATE_KEY,
-  TriggerOpTypes
+  TriggerOpTypes,
+  stop,
+  ref
 } from '../src/index'
 
 describe('reactivity/effect', () => {
@@ -740,5 +742,51 @@ describe('reactivity/effect', () => {
       key: 'foo',
       oldValue: 2
     })
+  })
+
+  it('stop', () => {
+    let dummy
+    const obj = reactive({ prop: 1 })
+    const runner = effect(() => {
+      dummy = obj.prop
+    })
+    obj.prop = 2
+    expect(dummy).toBe(2)
+    stop(runner)
+    obj.prop = 3
+
+    // Stopped effect should still be manually callable
+    runner()
+    expect(dummy).toBe(3)
+  })
+
+  // #5707
+  // when an effect completes its run, it should clear the tracking bits of
+  // its tracked deps. However, if the effect stops itself, the deps list is
+  // emptied so their bits are never cleared.
+  it('edge case: self-stopping effect tracking ref', () => {
+    const c = ref(true)
+    const runner = effect(() => {
+      // reference ref
+      if (!c.value) {
+        // stop itself while running
+        stop(runner)
+      }
+    })
+    // trigger run
+    c.value = !c.value
+    // should clear bits
+    expect((c as any).dep.w).toBe(0)
+    expect((c as any).dep.n).toBe(0)
+  })
+
+  it('events: onStop', () => {
+    const onStop = jest.fn()
+    const runner = effect(() => {}, {
+      onStop
+    })
+
+    stop(runner)
+    expect(onStop).toHaveBeenCalled()
   })
 })
