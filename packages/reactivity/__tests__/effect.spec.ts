@@ -1,4 +1,13 @@
-import { effect, reactive, toRaw, ReactiveEffectRunner } from '../src/index'
+import {
+  effect,
+  reactive,
+  toRaw,
+  ReactiveEffectRunner,
+  DebuggerEvent,
+  TrackOpTypes,
+  ITERATE_KEY,
+  TriggerOpTypes
+} from '../src/index'
 
 describe('reactivity/effect', () => {
   it('should run the passed function once (wrapped by a effect)', () => {
@@ -628,5 +637,108 @@ describe('reactivity/effect', () => {
     expect(dummy).toBe(1)
     obj.foo = 2
     expect(dummy).toBe(2)
+  })
+
+  it('scheduler', () => {
+    let dummy
+    let run: any
+    const scheduler = jest.fn(() => {
+      run = runner
+    })
+    const obj = reactive({ foo: 1 })
+    const runner = effect(
+      () => {
+        dummy = obj.foo
+      },
+      { scheduler }
+    )
+    expect(scheduler).not.toHaveBeenCalled()
+    expect(dummy).toBe(1)
+    // should be called on first trigger
+    obj.foo++
+    expect(scheduler).toHaveBeenCalledTimes(1)
+    // should not run yet
+    expect(dummy).toBe(1)
+    // manually run
+    run()
+    // should have run
+    expect(dummy).toBe(2)
+  })
+
+  it('events: onTrack', () => {
+    let events: DebuggerEvent[] = []
+    let dummy
+    const onTrack = jest.fn((e: DebuggerEvent) => {
+      events.push(e)
+    })
+    const obj = reactive({ foo: 1, bar: 2 })
+    const runner = effect(
+      () => {
+        dummy = obj.foo
+        dummy = 'bar' in obj
+        dummy = Object.keys(obj)
+      },
+      { onTrack }
+    )
+    expect(dummy).toEqual(['foo', 'bar'])
+    expect(onTrack).toHaveBeenCalledTimes(3)
+    expect(events).toEqual([
+      {
+        effect: runner.effect,
+        target: toRaw(obj),
+        type: TrackOpTypes.GET,
+        key: 'foo'
+      },
+      {
+        effect: runner.effect,
+        target: toRaw(obj),
+        type: TrackOpTypes.HAS,
+        key: 'bar'
+      },
+      {
+        effect: runner.effect,
+        target: toRaw(obj),
+        type: TrackOpTypes.ITERATE,
+        key: ITERATE_KEY
+      }
+    ])
+  })
+
+  it('events: onTrigger', () => {
+    let events: DebuggerEvent[] = []
+    let dummy
+    const onTrigger = jest.fn((e: DebuggerEvent) => {
+      events.push(e)
+    })
+    const obj = reactive<{ foo?: number }>({ foo: 1 })
+    const runner = effect(
+      () => {
+        dummy = obj.foo
+      },
+      { onTrigger }
+    )
+
+    obj.foo!++
+    expect(dummy).toBe(2)
+    expect(onTrigger).toHaveBeenCalledTimes(1)
+    expect(events[0]).toEqual({
+      effect: runner.effect,
+      target: toRaw(obj),
+      type: TriggerOpTypes.SET,
+      key: 'foo',
+      oldValue: 1,
+      newValue: 2
+    })
+
+    delete obj.foo
+    expect(dummy).toBeUndefined()
+    expect(onTrigger).toHaveBeenCalledTimes(2)
+    expect(events[1]).toEqual({
+      effect: runner.effect,
+      target: toRaw(obj),
+      type: TriggerOpTypes.DELETE,
+      key: 'foo',
+      oldValue: 2
+    })
   })
 })
