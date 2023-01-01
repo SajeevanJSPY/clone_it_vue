@@ -8,7 +8,8 @@ import {
   ITERATE_KEY,
   TriggerOpTypes,
   stop,
-  ref
+  ref,
+  markRaw
 } from '../src/index'
 
 describe('reactivity/effect', () => {
@@ -788,5 +789,54 @@ describe('reactivity/effect', () => {
 
     stop(runner)
     expect(onStop).toHaveBeenCalled()
+  })
+
+  it('stop: a stopped effect is nested in a normal effect', () => {
+    let dummy
+    const obj = reactive({ prop: 1 })
+    const runner = effect(() => {
+      dummy = obj.prop
+    })
+    stop(runner)
+    obj.prop = 2
+    expect(dummy).toBe(1)
+
+    // observed value in inner stopped effect
+    // will track outer effect as an dependency
+    effect(() => {
+      runner()
+    })
+    expect(dummy).toBe(2)
+
+    // notify outer effect to run
+    obj.prop = 3
+    expect(dummy).toBe(3)
+  })
+
+  it('markRaw', () => {
+    const obj = reactive({
+      foo: markRaw({
+        prop: 0
+      })
+    })
+    let dummy
+    effect(() => {
+      dummy = obj.foo.prop
+    })
+    expect(dummy).toBe(0)
+    obj.foo.prop++
+    expect(dummy).toBe(0)
+    obj.foo = { prop: 1 }
+    expect(dummy).toBe(1)
+  })
+
+  it('should not be triggered when the value and the old value both are NaN', () => {
+    const obj = reactive({
+      foo: NaN
+    })
+    const fnSpy = jest.fn(() => obj.foo)
+    effect(fnSpy)
+    obj.foo = NaN
+    expect(fnSpy).toHaveBeenCalledTimes(1)
   })
 })
