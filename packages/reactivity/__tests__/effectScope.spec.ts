@@ -1,4 +1,4 @@
-import { EffectScope } from '../src/index'
+import { effect, EffectScope, reactive } from '../src/index'
 
 describe('reactivity/effect/scope', () => {
   it('should run', () => {
@@ -14,5 +14,52 @@ describe('reactivity/effect/scope', () => {
 
   it('should return run value', () => {
     expect(new EffectScope().run(() => 1)).toBe(1)
+  })
+
+  it('should work w/ active property', () => {
+    const scope = new EffectScope()
+    scope.run(() => 1)
+    expect(scope.active).toBeTruthy()
+    scope.stop()
+    expect(scope.active).toBeFalsy()
+  })
+
+  it('should collect the effects', () => {
+    const scope = new EffectScope()
+    scope.run(() => {
+      let dummy
+      const counter = reactive({ num: 0 })
+      effect(() => (dummy = counter.num))
+
+      expect(dummy).toBe(0)
+      counter.num = 7
+      expect(dummy).toBe(7)
+    })
+
+    expect(scope.effects.length).toBe(1)
+  })
+
+  it('stop', () => {
+    let dummy, doubled
+    const counter = reactive({ num: 0 })
+
+    const scope = new EffectScope()
+    scope.run(() => {
+      effect(() => (dummy = counter.num))
+      effect(() => (doubled = counter.num * 2))
+    })
+
+    expect(scope.effects.length).toBe(2)
+
+    expect(dummy).toBe(0)
+    counter.num = 7
+    expect(dummy).toBe(7)
+    expect(doubled).toBe(14)
+
+    scope.stop()
+
+    counter.num = 6
+    expect(dummy).toBe(7)
+    expect(doubled).toBe(14)
   })
 })
