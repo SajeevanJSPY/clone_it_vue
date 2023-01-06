@@ -121,4 +121,28 @@ describe('reactivity/effect/scope', () => {
     // nested scope should not be stopped
     expect(doubled).toBe(12)
   })
+
+  it('able to run the scope', () => {
+    let dummy, doubled
+    const counter = reactive({ num: 0 })
+
+    const scope = new EffectScope()
+    scope.run(() => {
+      effect(() => (dummy = counter.num))
+    })
+
+    expect(scope.effects.length).toBe(1)
+
+    scope.run(() => {
+      effect(() => (doubled = counter.num * 2))
+    })
+
+    expect(scope.effects.length).toBe(2)
+
+    counter.num = 7
+    expect(dummy).toBe(7)
+    expect(doubled).toBe(14)
+
+    scope.stop()
+  })
 })
