@@ -145,4 +145,30 @@ describe('reactivity/effect/scope', () => {
 
     scope.stop()
   })
+
+  it('can not run an inactive scope', () => {
+    let dummy, doubled
+    const counter = reactive({ num: 0 })
+
+    const scope = new EffectScope()
+    scope.run(() => {
+      effect(() => (dummy = counter.num))
+    })
+
+    expect(scope.effects.length).toBe(1)
+
+    scope.stop()
+
+    scope.run(() => {
+      effect(() => (doubled = counter.num * 2))
+    })
+
+    // expect('[Vue warn] cannot run an inactive effect scope.').toHaveBeenWarned()
+
+    expect(scope.effects.length).toBe(1)
+
+    counter.num = 7
+    expect(dummy).toBe(0)
+    expect(doubled).toBe(undefined)
+  })
 })
