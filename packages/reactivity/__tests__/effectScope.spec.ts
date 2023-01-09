@@ -1,4 +1,4 @@
-import { effect, EffectScope, reactive } from '../src/index'
+import { effect, EffectScope, onScopeDispose, reactive } from '../src/index'
 
 describe('reactivity/effect/scope', () => {
   it('should run', () => {
@@ -170,5 +170,24 @@ describe('reactivity/effect/scope', () => {
     counter.num = 7
     expect(dummy).toBe(0)
     expect(doubled).toBe(undefined)
+  })
+
+  it('should fire onScopeDispose hook', () => {
+    let dummy = 0
+
+    const scope = new EffectScope()
+    scope.run(() => {
+      onScopeDispose(() => (dummy += 1))
+      onScopeDispose(() => (dummy += 2))
+    })
+
+    scope.run(() => {
+      onScopeDispose(() => (dummy += 4))
+    })
+
+    expect(dummy).toBe(0)
+
+    scope.stop()
+    expect(dummy).toBe(7)
   })
 })
